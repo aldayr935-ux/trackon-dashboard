@@ -51,6 +51,13 @@ export default function AssistantPanel({ onClose }: Props) {
     setInput('')
     setLoading(true)
 
+    if (import.meta.env.PROD) {
+  const reply = 'El asistente IA está disponible solo en entorno local. Consulta el README para configurarlo.'
+  setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+  setLoading(false)
+  return
+}
+
     try {
       const response = await fetch('http://localhost:8010/proxy/v1/messages', {
   method: 'POST',

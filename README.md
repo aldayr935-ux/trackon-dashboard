@@ -2,6 +2,10 @@
 
 Dashboard interactivo para una empresa ficticia de carga y logística. Proyecto de portafolio construido con React, TypeScript y Tailwind CSS.
 
+## Demo
+
+[Ver demo en vivo] (https://trackon-dashboard.vercel.app/)
+
 ![Dashboard Preview](./preview.png)
 
 ## Características
@@ -24,7 +28,7 @@ Dashboard interactivo para una empresa ficticia de carga y logística. Proyecto 
 
 1. Clona el repositorio
 ```bash
-   
+   git clone https://github.com/aldayr935-ux/trackon-dashboard.git
    cd trackon-dashboard
 ```
 
