@@ -8,6 +8,7 @@ import FlotaView from './components/views/FlotaView'
 import EnviosView from './components/views/EnviosView'
 import RutasView from './components/views/RutasView'
 import AlertasView from './components/views/AlertasView'
+import OrientationGuard from './components/OrientationGuard'
 
 const viewTitles: Record<ViewId, string> = {
   resumen: 'Resumen general',
@@ -22,6 +23,7 @@ export default function App() {
   const [showAssistant, setShowAssistant] = useState(false)
 
   return (
+    <OrientationGuard>
     <div className="flex h-screen bg-gray-50 font-sans">
       <Sidebar activeView={activeView} onNavigate={setActiveView} />
       <div className="flex flex-col flex-1 overflow-hidden">
@@ -46,5 +48,6 @@ export default function App() {
 
       {showAssistant && <AssistantPanel onClose={() => setShowAssistant(false)} />}
     </div>
+    </OrientationGuard>
   )
 }
