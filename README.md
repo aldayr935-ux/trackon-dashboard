@@ -1,81 +1,105 @@
 # TRACKON — Dashboard de Operaciones Logísticas
 
-Dashboard interactivo para una empresa ficticia de carga y logística. Proyecto de portafolio construido con React, TypeScript y Tailwind CSS.
+Dashboard fullstack interactivo para una empresa ficticia de carga y logística. Proyecto de portafolio construido con React, TypeScript, Node.js y PostgreSQL.
 
 ## Demo
 
-[Ver demo en vivo] (https://trackon-dashboard.vercel.app/)
+🔗 [trackon-dashboard.vercel.app](https://trackon-dashboard.vercel.app)
+
+**Credenciales demo**
+- Email: demo@trackon.com
+- Password: demo1234
 
 ![Dashboard Preview](./preview.png)
 
 ## Características
 
+- **Autenticación completa** con JWT — login, sesión persistente y logout
 - **5 vistas navegables** — Resumen, Flota, Envíos, Rutas y Alertas
-- **Gráficas interactivas** con Chart.js (barras, línea y doughnut)
-- **Asistente IA** integrado con la API de Claude que responde preguntas sobre la operación en tiempo real
+- **Datos reales** desde una API REST propia con PostgreSQL
+- **Gráficas interactivas** con Chart.js (barras y doughnut)
+- **Asistente IA** integrado con la API de Claude
 - **Filtros dinámicos** en la vista de envíos
-- Datos simulados realistas de una flota de 45 vehículos
+- **Badges dinámicos** en el sidebar con conteos reales desde la DB
 
 ## Stack
 
+**Frontend**
 - React 19 + TypeScript
 - Tailwind CSS v4
 - Chart.js + react-chartjs-2
 - Vite
-- API de Anthropic (Claude Sonnet)
+- Deploy: Vercel
+
+**Backend**
+- Node.js + Express.js + TypeScript
+- PostgreSQL (Neon) + Prisma ORM
+- JWT + bcrypt
+- Helmet + express-rate-limit + express-validator
+- Deploy: Railway
 
 ## Correr en local
 
-1. Clona el repositorio
+### Backend
+
+1. Clona el repositorio del backend
 ```bash
-   git clone https://github.com/aldayr935-ux/trackon-dashboard.git
-   cd trackon-dashboard
+git clone https://github.com/aldayr935-ux/trackon-api.git
+cd trackon-api
 ```
 
 2. Instala dependencias
 ```bash
-   npm install
+npm install
 ```
 
-3. Crea un archivo `.env` en la raíz con tu API key de Anthropic
+3. Crea un archivo `.env` en la raíz
 ```bash
-   VITE_ANTHROPIC_API_KEY=sk-ant-tu-api-key-aqui
+PORT=3000
+DATABASE_URL=postgresql://usuario:password@...neon.tech/neondb?sslmode=require
+JWT_SECRET=tu_secret_aqui
+JWT_EXPIRES_IN=7d
 ```
-Puedes obtener una en [console.anthropic.com](https://console.anthropic.com)
 
-4. Inicia el proxy CORS en una terminal
+4. Corre las migraciones y el seed
 ```bash
-   npx local-cors-proxy --proxyUrl https://api.anthropic.com --port 8010
+npx prisma migrate deploy
+npm run seed
 ```
 
-5. En otra terminal, inicia el proyecto
+5. Inicia el servidor
 ```bash
-   npm run dev
+npm run dev
 ```
 
-6. Abre [http://localhost:5173](http://localhost:5173)
+### Frontend
 
-> El proxy es necesario solo en desarrollo. En producción se requiere un backend propio para las llamadas a la API.
+1. Clona el repositorio del frontend
+```bash
+git clone https://github.com/aldayr935-ux/trackon-dashboard.git
+cd trackon-dashboard
+```
+
+2. Instala dependencias
+```bash
+npm install
+```
+
+3. Crea un archivo `.env` en la raíz
+```bash
+VITE_API_URL=http://localhost:3000/api
+VITE_ANTHROPIC_API_KEY=sk-ant-tu-api-key-aqui
+```
+
+4. Inicia el proyecto
+```bash
+npm run dev
+```
+
+5. Abre [http://localhost:5173](http://localhost:5173)
 
 ## Estructura del proyecto
 
-Puedes obtener una en [console.anthropic.com](https://console.anthropic.com)
-
-4. Inicia el proxy CORS en una terminal
-```bash
-   npx local-cors-proxy --proxyUrl https://api.anthropic.com --port 8010
-```
-
-5. En otra terminal, inicia el proyecto
-```bash
-   npm run dev
-```
-
-6. Abre [http://localhost:5173](http://localhost:5173)
-
-> El proxy es necesario solo en desarrollo. En producción se requiere un backend propio para las llamadas a la API.
-
-## Estructura del proyecto
 src/
 ├── components/
 │   ├── Sidebar.tsx
@@ -87,12 +111,16 @@ src/
 │       ├── EnviosView.tsx
 │       ├── RutasView.tsx
 │       └── AlertasView.tsx
-├── data/
-│   └── mockData.ts
+├── context/
+│   └── AuthContext.tsx
+├── hooks/
+│   └── useAuth.ts
+├── services/
+│   └── api.ts
 ├── types/
 │   └── index.ts
 └── App.tsx
 
 ## Autor
 
-Aldayr — [NETIKA]
+Aldayr — [ALDACODE](https://aldacode.com)
