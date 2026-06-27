@@ -11,6 +11,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js'
+import { AuthProvider } from './context/AuthContext'
 import './index.css'
 import App from './App.tsx'
 
@@ -27,6 +28,8 @@ ChartJS.register(
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 )

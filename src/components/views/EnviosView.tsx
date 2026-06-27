@@ -1,59 +1,79 @@
-import { useState } from 'react'
-import { shipments } from '../../data/mockdata'
-import type { Shipment, ShipmentStatus } from '../../types'
+import { useEffect, useState } from 'react'
+import { shipmentsService } from '../../services/api'
 
-const statusLabel: Record<ShipmentStatus, string> = {
-  'en-ruta': 'En ruta',
-  'demorado': 'Demorado',
-  'cargando': 'Cargando',
-  'entregado': 'Entregado',
+interface ApiShipment {
+  id: string
+  trackingCode: string
+  origin: string
+  destination: string
+  status: 'PENDING' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED'
+  weight: number
+  vehicle: { plate: string } | null
+  route: { name: string } | null
 }
 
-const statusBadge: Record<ShipmentStatus, string> = {
-  'en-ruta': 'bg-green-50 text-green-700',
-  'demorado': 'bg-amber-50 text-amber-700',
-  'cargando': 'bg-blue-50 text-blue-700',
-  'entregado': 'bg-gray-100 text-gray-500',
+const statusLabel: Record<string, string> = {
+  PENDING: 'Pendiente',
+  IN_TRANSIT: 'En ruta',
+  DELIVERED: 'Entregado',
+  CANCELLED: 'Cancelado',
+}
+const statusBadge: Record<string, string> = {
+  PENDING: 'bg-blue-50 text-blue-700',
+  IN_TRANSIT: 'bg-green-50 text-green-700',
+  DELIVERED: 'bg-gray-100 text-gray-500',
+  CANCELLED: 'bg-red-50 text-red-600',
 }
 
-type Filter = 'todos' | ShipmentStatus
+type Filter = 'TODOS' | 'PENDING' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED'
 
 const filters: { id: Filter; label: string }[] = [
-  { id: 'todos', label: 'Todos' },
-  { id: 'en-ruta', label: 'En ruta' },
-  { id: 'demorado', label: 'Demorados' },
-  { id: 'cargando', label: 'Cargando' },
-  { id: 'entregado', label: 'Entregados' },
+  { id: 'TODOS', label: 'Todos' },
+  { id: 'IN_TRANSIT', label: 'En ruta' },
+  { id: 'PENDING', label: 'Pendientes' },
+  { id: 'DELIVERED', label: 'Entregados' },
+  { id: 'CANCELLED', label: 'Cancelados' },
 ]
 
-interface RowProps {
-  shipment: Shipment
-  isLast: boolean
-}
-
-function ShipmentRow({ shipment: s, isLast }: RowProps) {
+function ShipmentRow({ shipment: s, isLast }: { shipment: ApiShipment; isLast: boolean }) {
   return (
     <tr className={!isLast ? 'border-b border-gray-50' : ''}>
-      <td className="px-5 py-3 font-mono text-xs text-gray-400">{s.id}</td>
+      <td className="px-5 py-3 font-mono text-xs text-gray-400">{s.trackingCode}</td>
       <td className="px-3 py-3 text-xs text-gray-700">{s.origin}</td>
       <td className="px-3 py-3 text-xs text-gray-700">{s.destination}</td>
-      <td className="px-3 py-3 text-xs text-gray-600">{s.driver}</td>
-      <td className="px-3 py-3 text-xs text-gray-400 font-mono">{s.vehicleId}</td>
-      <td className="px-3 py-3 text-xs text-gray-600">{s.cargo != null ? `${s.cargo} t` : '—'}</td>
+      <td className="px-3 py-3 text-xs text-gray-400 font-mono">{s.vehicle?.plate ?? '—'}</td>
+      <td className="px-3 py-3 text-xs text-gray-600">{s.weight} kg</td>
+      <td className="px-3 py-3 text-xs text-gray-600">{s.route?.name ?? '—'}</td>
       <td className="px-3 py-3">
         <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${statusBadge[s.status]}`}>
           {statusLabel[s.status]}
         </span>
       </td>
-      <td className="px-3 py-3 text-xs text-gray-600">{s.eta}</td>
     </tr>
   )
 }
 
 export default function EnviosView() {
-  const [activeFilter, setActiveFilter] = useState<Filter>('todos')
+  const [shipments, setShipments] = useState<ApiShipment[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [activeFilter, setActiveFilter] = useState<Filter>('TODOS')
 
-  const filtered = activeFilter === 'todos'
+  useEffect(() => {
+    shipmentsService.getAll()
+      .then(setShipments)
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return (
+    <div className="flex items-center justify-center h-64 text-sm text-gray-400">Cargando envíos...</div>
+  )
+  if (error) return (
+    <div className="flex items-center justify-center h-64 text-sm text-red-500">Error: {error}</div>
+  )
+
+  const filtered = activeFilter === 'TODOS'
     ? shipments
     : shipments.filter(s => s.status === activeFilter)
 
@@ -61,10 +81,9 @@ export default function EnviosView() {
     <div className="space-y-4">
       <div className="flex gap-2">
         {filters.map(f => {
-          const count = f.id === 'todos'
+          const count = f.id === 'TODOS'
             ? shipments.length
             : shipments.filter(s => s.status === f.id).length
-
           return (
             <button
               key={f.id}
@@ -85,7 +104,7 @@ export default function EnviosView() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-100">
-              {['ID', 'Origen', 'Destino', 'Conductor', 'Vehículo', 'Carga', 'Estado', 'ETA'].map(h => (
+              {['Código', 'Origen', 'Destino', 'Vehículo', 'Peso', 'Ruta', 'Estado'].map(h => (
                 <th key={h} className="text-left text-[10px] font-medium text-gray-400 uppercase tracking-wider px-3 py-3 first:px-5">
                   {h}
                 </th>
@@ -99,7 +118,7 @@ export default function EnviosView() {
                 ))
               : (
                 <tr>
-                  <td colSpan={8} className="px-5 py-8 text-center text-sm text-gray-400">
+                  <td colSpan={7} className="px-5 py-8 text-center text-sm text-gray-400">
                     No hay envíos con este estado
                   </td>
                 </tr>
