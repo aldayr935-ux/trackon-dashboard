@@ -52,7 +52,7 @@ export default function LoginView() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="correo@empresa.com"
+              placeholder="demo@trackon.com"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             />
           </div>
@@ -66,7 +66,7 @@ export default function LoginView() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="••••••••"
+              placeholder="demo1234"
               className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
             />
           </div>
