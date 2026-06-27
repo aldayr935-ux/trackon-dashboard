@@ -26,6 +26,9 @@ export default function App() {
   const [activeView, setActiveView] = useState<ViewId>('resumen')
   const [showAssistant, setShowAssistant] = useState(false)
   const [badges, setBadges] = useState<Partial<Record<ViewId, number>>>({})
+  const updateAlertBadge = (unread: number) => {
+  setBadges(prev => ({ ...prev, alertas: unread }))
+}
 
   useEffect(() => {
     if (!user) return
@@ -65,7 +68,9 @@ export default function App() {
             {activeView === 'flota' && <FlotaView />}
             {activeView === 'envios' && <EnviosView />}
             {activeView === 'rutas' && <RutasView />}
-            {activeView === 'alertas' && <AlertasView />}
+            {activeView === 'alertas' && (
+              <AlertasView onAlertsChange={updateAlertBadge} />
+              )}
           </main>
         </div>
 

@@ -33,10 +33,23 @@ const formatTime = (dateStr: string) => {
   return date.toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' })
 }
 
-export default function AlertasView() {
+interface Props {
+  onAlertsChange: (unread: number) => void
+}
+
+export default function AlertasView({ onAlertsChange }: Props) {
   const [alerts, setAlerts] = useState<ApiAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+    const updateAlerts = (updated: ApiAlert[]) => {
+    setAlerts(updated)
+    onAlertsChange(updated.filter(a => !a.read).length)
+  }
+
+  const markAsRead = async (id: string) => {
+    await alertsService.markAsRead(id)
+    updateAlerts(alerts.map(a => a.id === id ? { ...a, read: true } : a))
+  }
 
   useEffect(() => {
     alertsService.getAll()
@@ -45,17 +58,16 @@ export default function AlertasView() {
       .finally(() => setLoading(false))
   }, [])
 
-  const markAsRead = async (id: string) => {
-    await alertsService.markAsRead(id)
-    setAlerts(prev => prev.map(a => a.id === id ? { ...a, read: true } : a))
-  }
-
   if (loading) return (
     <div className="flex items-center justify-center h-64 text-sm text-gray-400">Cargando alertas...</div>
   )
   if (error) return (
     <div className="flex items-center justify-center h-64 text-sm text-red-500">Error: {error}</div>
   )
+    const markAllRead = async () => {
+    await alertsService.markAllAsRead()
+    updateAlerts(alerts.map(a => ({ ...a, read: true })))
+  }
 
   return (
     <div className="grid grid-cols-2 gap-4">
@@ -64,10 +76,7 @@ export default function AlertasView() {
           <span className="text-sm font-medium text-gray-900">Alertas activas</span>
           {alerts.some(a => !a.read) && (
             <button
-              onClick={async () => {
-                await alertsService.markAllAsRead()
-                setAlerts(prev => prev.map(a => ({ ...a, read: true })))
-              }}
+              onClick={markAllRead}
               className="text-xs text-blue-600 hover:underline cursor-pointer"
             >
               Marcar todas como leídas
